@@ -36,6 +36,21 @@ if is_deepspeed_available():
 
 
 class UnlearnTrainer(FinetuneTrainer):
+    def training_step(self, model, inputs, num_items_in_batch=None):
+        model.train()
+
+        if "forget" in inputs or "retain" in inputs:
+            prepared_inputs = {}
+            for k, v in inputs.items():
+                prepared_inputs[k] = self._prepare_inputs(v)
+            inputs = prepared_inputs
+        else:
+            inputs = self._prepare_inputs(inputs)
+
+        with self.compute_loss_context_manager():
+            loss = self.compute_loss(model, inputs)
+
+        return loss.detach() / self.args.gradient_accumulation_steps
     # Adapted from Huggingface DPO Trainer: https://github.com/huggingface/accelerate/blob/739b135f8367becb67ffaada12fe76e3aa60fefd/src/accelerate/accelerator.py#L1473
     def _prepare_deepspeed(self, model):
         # Adapted from accelerate: https://github.com/huggingface/accelerate/blob/739b135f8367becb67ffaada12fe76e3aa60fefd/src/accelerate/accelerator.py#L1473
@@ -99,7 +114,6 @@ class UnlearnTrainer(FinetuneTrainer):
         loss_without_labels = (
             True if len(self.label_names) == 0 and return_loss else False
         )
-
         inputs = self._prepare_inputs(inputs)
         if ignore_keys is None:
             if hasattr(self.model, "config"):

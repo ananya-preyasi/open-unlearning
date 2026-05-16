@@ -8,7 +8,7 @@ defaults:
   - override /data/datasets@data.retain: WMDP_retain
   - override /eval: lm_eval
 
-data_split: bio
+data_split: cyber
 
 data:
   anchor: forget
@@ -37,6 +37,7 @@ collator:
 
 trainer:
   args:
+    remove_unused_columns: False
     per_device_train_batch_size: 1
     gradient_accumulation_steps: 16
     learning_rate: 5e-5
@@ -55,4 +56,6 @@ trainer:
     trainable_params_regex: 
       - model\.layers\.(5|6|7)\.mlp\.down_proj\.weight # If you want to update only these weights (as done in https://github.com/centerforaisafety/wmdp/blob/bc5e1ba0367ea826caeeeaa50656336a1e87acfb/rmu/unlearn.py#L26)
 
-task_name: llama32_rmu_bio
+task_name: llama32_rmu_cyber
+
+mode: unlearn
