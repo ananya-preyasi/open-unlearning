@@ -50,6 +50,8 @@ class UnlearnTrainer(FinetuneTrainer):
         with self.compute_loss_context_manager():
             loss = self.compute_loss(model, inputs)
 
+        self.accelerator.backward(loss)
+
         return loss.detach() / self.args.gradient_accumulation_steps
     # Adapted from Huggingface DPO Trainer: https://github.com/huggingface/accelerate/blob/739b135f8367becb67ffaada12fe76e3aa60fefd/src/accelerate/accelerator.py#L1473
     def _prepare_deepspeed(self, model):

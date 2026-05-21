@@ -16,7 +16,13 @@ wandb/
 data/
 !*/data/ 
 evals/
-!*/evals/  
+!*/evals/
+#newly added
+openunlearn_env/
+saved_results/
+*.bak
+saves/
+logs/  
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
